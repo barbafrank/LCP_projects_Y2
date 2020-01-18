@@ -1,2 +1,8 @@
 # Jupyter Stuffs
-.ipynb_checkpoints
+**/.ipynb_checkpoints
+
+# python stuffs
+**/__pycache__
+
+# OSX
+**/.DS_Store
