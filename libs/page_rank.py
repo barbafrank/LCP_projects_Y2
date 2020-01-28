@@ -108,7 +108,8 @@ def push(p, r, alpha, u, du, neighbours, neighbours_deg, epsilon):
 
     return r_above_th
 
-def approximateSimrank(A, v, alpha, epsilon, max_iters=200, return_residual=False):
+def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
+                            return_residual=False, use_only_neighbours=False):
     # compute N
     N = len(A)
 
@@ -124,6 +125,9 @@ def approximateSimrank(A, v, alpha, epsilon, max_iters=200, return_residual=Fals
 
     # precompute the inverse of epsilon for efficiency
     inv_epsilon = 1/epsilon
+
+    # extract the original neighbours
+    v_neighs = [n[0] for n in A[v]]
 
     # iterate over the heap as per defined in [1]
     iters = 0
@@ -146,11 +150,18 @@ def approximateSimrank(A, v, alpha, epsilon, max_iters=200, return_residual=Fals
         # push the new nodes accordingly to the indicator
         # vector r_above_th returned by push (boolean)
         for i, flag in enumerate(r_above_th):
-            if flag:
-                n = neigh[i][0]
-                # there can never be a math exception, since if r were
-                # to be 0 then it would have never been inserted in the list
-                hq.heappush(pq, (neigh_deg[i]/r[n], n))
+            if use_only_neighbours:
+                if flag and i in v_neighs:
+                    n = neigh[i][0]
+                    # there can never be a math exception, since if r were
+                    # to be 0 then it would have never been inserted in the list
+                    hq.heappush(pq, (neigh_deg[i]/r[n], n))
+            else:
+                if flag:
+                    n = neigh[i][0]
+                    # there can never be a math exception, since if r were
+                    # to be 0 then it would have never been inserted in the list
+                    hq.heappush(pq, (neigh_deg[i]/r[n], n))
 
         iters += 1
 
