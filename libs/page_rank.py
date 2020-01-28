@@ -173,7 +173,8 @@ def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
 
 # the function creates the L matrix iterating locally the approximate simrank
 #def localPageRank(A, N, D, c, epsilon=1e-5, max_iters=200):
-def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False):
+def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False,
+                                                    use_only_neighbours=False):
     N = len(A)
     L = np.zeros((N, N))
 
@@ -184,7 +185,8 @@ def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False):
 
     for i, node in enumerate(A):
         #p = approximateSimrank(A, N, D, i, c, epsilon, max_iters)
-        p = approximateSimrank(A, i, alpha, epsilon, max_iters, return_residual)
+        p = approximateSimrank(A, i, alpha, epsilon, max_iters, return_residual,
+                                                            use_only_neighbours)
         for neighbour in node:
             L[i,neighbour[0]] = p[neighbour[0]]
     return L
