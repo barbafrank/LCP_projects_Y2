@@ -99,7 +99,8 @@ def push(p, r, alpha, u, du, neighbours, neighbours_deg, epsilon):
 
     # update r again and define the values
     # of the indicator list
-    for i, n in enumerate(neighbours):
+    for i, e in enumerate(neighbours):
+        n = e[0]
         r[n] += (1.0 - alpha)*r[u]/(2.0*du)
         # a node v must be added if: r(v)/d(v) >= epsilon
         if (neighbours_deg[i] == 0 and r[0] != 0) or r[n]/neighbours_deg[i] >= epsilon:
