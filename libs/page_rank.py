@@ -149,7 +149,7 @@ def approximate_page_rank(A, v, alpha, epsilon, max_iters=200, return_residual=F
                 n = neigh[i][0]
                 # there can never be a math exception, since if r were
                 # to be 0 then it would have never been inserted in the list
-                hq.heappush(pq, (neigh_deg[i]/r[n]], n))
+                hq.heappush(pq, (neigh_deg[i]/r[n], n))
 
         iters += 1
 
