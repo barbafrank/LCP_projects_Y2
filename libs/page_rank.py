@@ -107,7 +107,7 @@ def push(p, r, alpha, u, du, neighbours, neighbours_deg, epsilon):
 
     return r_above_th
 
-def approximate_page_rank(A, v, alpha, epsilon, max_iters=200, return_residual=False):
+def approximateSimrank(A, v, alpha, epsilon, max_iters=200, return_residual=False):
     # compute N
     N = len(A)
 
