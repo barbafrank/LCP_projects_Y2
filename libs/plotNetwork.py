@@ -6,15 +6,19 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 from matplotlib.colors import rgb2hex
 
-def plotNetworkClusters(A, clusters_vector, node_size=10, figsize=(10, 5), draw_edges=True, pos=None):
+def plotNetworkClusters(A, clusters_vector, node_size=10, figsize=(10, 5),
+                                        draw_edges=True, pos=None, colors=None):
 
     size = len(clusters_vector)
     clusters = {k: v for k, v in enumerate(clusters_vector)}
 
     #Generating a random set of colors (one for each cluster)
-    #colors = generateRandomColors(size+1)
-    x = np.arange(size+1)
-    colors = cm.get_cmap('tab20')(x)
+    if colors is None:
+        colors = generateRandomColors(size+1)
+    #x = np.arange(size+1)
+    #x = np.linspace(0, 255, size+1)
+    #colors = cm.get_cmap('tab20')(x)
+    #colors = cm.get_cmap('inferno')(x)
 
     #Creating graph
     G = nx.from_numpy_matrix(A)
@@ -26,13 +30,14 @@ def plotNetworkClusters(A, clusters_vector, node_size=10, figsize=(10, 5), draw_
 
     for i, com in enumerate(set(clusters.values())):
         list_nodes = [nodes for nodes in clusters.keys() if clusters[nodes] == com]
-        nx.draw_networkx_nodes(G, pos, list_nodes, node_size, node_color = rgb2hex(colors[i][:3]))
+        nx.draw_networkx_nodes(G, pos, list_nodes, node_size, node_color = colors[i])
+        #nx.draw_networkx_nodes(G, pos, list_nodes, node_size, node_color = rgb2hex(colors[i][:3]))
 
     if(draw_edges):
         nx.draw_networkx_edges(G, pos, alpha=0.5)
 
     plt.show()
-    return pos
+    return pos, colors
 
 def generateRandomColors(number_of_colors):
     return ["#"+''.join([random.choice('0123456789ABCDEF') for j in range(6)])

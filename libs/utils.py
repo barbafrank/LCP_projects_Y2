@@ -15,7 +15,7 @@ def getInOutDegree(edgelist):
     inDegs = [0.]*N
 
     # for each node and list
-    for i, n in edgelist:
+    for i, n in enumerate(edgelist):
         # initialize out degree
         out_deg = 0.
         # for each weight
@@ -25,6 +25,6 @@ def getInOutDegree(edgelist):
             # and in degree
             inDegs[edge[0]] += edge[1]
         # set out degree to the correct value
-        out_deg[i] = out_deg
+        outDegs[i] = out_deg
 
     return inDegs, outDegs
