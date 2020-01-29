@@ -1,5 +1,3 @@
-import numpy as np
-
 # define the routine that parses a text file
 # into the efficient adjacency representation
 # needed by the other functions
@@ -92,12 +90,3 @@ def edgelistParser(path, enc_type="list"):
         return (A, N, D)
     else:
         raise Exception("No such encoding type:", enc_type)
-
-# Method to convert the edgelist back to a dense matrix (Just for debugging purposes)
-def list2matrix(edgelist):
-    N = len(edgelist)
-    A_mat = np.zeros((N,N))
-    for i,node in enumerate(edgelist):
-        for neighbour in node:
-            A_mat[i, neighbour[0]] = neighbour[1]
-    return A_mat

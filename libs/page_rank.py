@@ -176,7 +176,8 @@ def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
 def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False,
                                                     use_only_neighbours=False):
     N = len(A)
-    L = np.zeros((N, N))
+    #L = np.zeros((N, N))
+    L = [None]*N
 
     # equivalent lazy pagerank constant
     alpha = 2*c/(1+c)
@@ -185,8 +186,17 @@ def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False,
 
     for i, node in enumerate(A):
         #p = approximateSimrank(A, N, D, i, c, epsilon, max_iters)
-        p = approximateSimrank(A, i, alpha, epsilon, max_iters, return_residual,
+        out = approximateSimrank(A, i, alpha, epsilon, max_iters, return_residual,
                                                             use_only_neighbours)
+
+        if return_residual:
+            p, r = out
+        else:
+            p = out
+
+        L[i] = []
         for neighbour in node:
-            L[i,neighbour[0]] = p[neighbour[0]]
+            #L[i,neighbour[0]] = p[neighbour[0]]
+            L[i].append((neighbour[0], p[neighbour[0]]))
+
     return L
