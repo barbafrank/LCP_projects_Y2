@@ -3,38 +3,50 @@ import scipy
 import numpy as np
 import random
 from matplotlib import pyplot as plt
-from matplotlib import cm
-from matplotlib.colors import rgb2hex
+import matplotlib as mpl
 
 def plotNetworkClusters(A, clusters_vector, node_size=10, figsize=(10, 5),
                                         draw_edges=True, pos=None, colors=None):
 
-    size = len(clusters_vector)
     clusters = {k: v for k, v in enumerate(clusters_vector)}
+    comms = set(clusters.values())
+    size = len(comms)
 
     #Generating a random set of colors (one for each cluster)
     if colors is None:
-        colors = generateRandomColors(size+1)
-    #x = np.arange(size+1)
-    #x = np.linspace(0, 255, size+1)
-    #colors = cm.get_cmap('tab20')(x)
-    #colors = cm.get_cmap('inferno')(x)
+        colors = generateRandomColors(size)
+
+    # test creating the cmap for the colorbar
+    cmap = mpl.colors.ListedColormap(colors)
+    norm = mpl.colors.BoundaryNorm(np.arange(-1, size)-0.5, cmap.N)
+    #print(cmap)
 
     #Creating graph
     G = nx.from_numpy_matrix(A)
 
     #Plotting
-    plt.figure(num=None, figsize=figsize, facecolor='w', edgecolor='k')
+    #plt.figure(num=None, figsize=figsize, facecolor='w', edgecolor='k')
+    fig, ax = plt.subplots(1, 1, num=None, figsize=figsize, facecolor='w', edgecolor='k')
+    bar_ax, _ = mpl.colorbar.make_axes(ax, 'bottom')
+
     if pos is None:
         pos = nx.spring_layout(G)
 
-    for i, com in enumerate(set(clusters.values())):
+    for i, com in enumerate(comms):
         list_nodes = [nodes for nodes in clusters.keys() if clusters[nodes] == com]
-        nx.draw_networkx_nodes(G, pos, list_nodes, node_size, node_color = colors[i])
+        nx.draw_networkx_nodes(G, pos, list_nodes, node_size, node_color = colors[i], ax=ax)
         #nx.draw_networkx_nodes(G, pos, list_nodes, node_size, node_color = rgb2hex(colors[i][:3]))
 
     if(draw_edges):
-        nx.draw_networkx_edges(G, pos, alpha=0.5)
+        nx.draw_networkx_edges(G, pos, alpha=0.5, ax=ax)
+
+    # set the colorbar
+    cb2 = mpl.colorbar.ColorbarBase(bar_ax, cmap=cmap,
+                                    norm=norm,
+                                    ticks=np.arange(-1, size),
+                                    spacing='proportional',
+                                    orientation='horizontal')
+    bar_ax.set_xticklabels(list(comms))
 
     plt.show()
     return pos, colors
