@@ -20,28 +20,29 @@ class queue_elem_t{
        this->weight = weight;
      }
 
-     bool operator>(const queue_elem_t& rhs){
+     bool operator>(const queue_elem_t& rhs) const{
        return this->weight > rhs.weight;
      }
-     bool operator>=(const queue_elem_t& rhs){
+     bool operator>=(const queue_elem_t& rhs) const{
        return this->weight >= rhs.weight;
      }
-     bool operator<(const queue_elem_t& rhs){
+     bool operator<(const queue_elem_t& rhs) const{
        return this->weight < rhs.weight;
      }
-     bool operator<=(const queue_elem_t& rhs){
+     bool operator<=(const queue_elem_t& rhs) const{
        return this->weight <= rhs.weight;
      }
-     bool operator==(const queue_elem_t& rhs){
+     bool operator==(const queue_elem_t& rhs) const{
        return this->weight == rhs.weight;
      }
-     bool operator!=(const queue_elem_t& rhs){
+     bool operator!=(const queue_elem_t& rhs) const{
        return this->weight != rhs.weight;
      }
 };
-// getDegree expects a list of tuples (int, double)
-// we first define the c-types version and then the
-// overloaded python function
+
+// all of the functions below are defined using c-types
+// they can be accessed through python using the python handler
+// for localPageRank
 double getDegree(nodelist_t edges){
   double out = 0;
   for(edge_t edge:edges){
@@ -152,4 +153,9 @@ edgelist_t localPageRank(edgelist_t A, double c, double epsilon=1e-5,
 
   }
   return L;
+}
+
+int main(int argc, char const *argv[]) {
+  
+  return 0;
 }
