@@ -109,7 +109,7 @@ def push(p, r, alpha, u, du, neighbours, neighbours_deg, epsilon):
     return r_above_th
 
 def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
-                            return_residual=False, use_only_neighbours=False):
+                            return_residual=False, return_only_neighbours=False):
     # compute N
     N = len(A)
 
@@ -150,20 +150,17 @@ def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
         # push the new nodes accordingly to the indicator
         # vector r_above_th returned by push (boolean)
         for i, flag in enumerate(r_above_th):
-            if use_only_neighbours:
-                if flag and i in v_neighs:
-                    n = neigh[i][0]
-                    # there can never be a math exception, since if r were
-                    # to be 0 then it would have never been inserted in the list
-                    hq.heappush(pq, (neigh_deg[i]/r[n], n))
-            else:
-                if flag:
-                    n = neigh[i][0]
-                    # there can never be a math exception, since if r were
-                    # to be 0 then it would have never been inserted in the list
-                    hq.heappush(pq, (neigh_deg[i]/r[n], n))
+            if flag:
+                n = neigh[i][0]
+                # there can never be a math exception, since if r were
+                # to be 0 then it would have never been inserted in the list
+                hq.heappush(pq, (neigh_deg[i]/r[n], n))
 
         iters += 1
+
+    if return_only_neighbours:
+        p = p[v_neighs]
+        r = r[v_neighs]
 
     if not return_residual:
         return p
@@ -174,7 +171,7 @@ def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
 # the function creates the L matrix iterating locally the approximate simrank
 #def localPageRank(A, N, D, c, epsilon=1e-5, max_iters=200):
 def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False,
-                                                    use_only_neighbours=False):
+                                                    return_only_neighbours=False):
     N = len(A)
     #L = np.zeros((N, N))
     L = [None]*N
@@ -187,7 +184,7 @@ def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False,
     for i, node in enumerate(A):
         #p = approximateSimrank(A, N, D, i, c, epsilon, max_iters)
         out = approximateSimrank(A, i, alpha, epsilon, max_iters, return_residual,
-                                                            use_only_neighbours)
+                                                            return_only_neighbours)
 
         if return_residual:
             p, r = out
@@ -195,8 +192,12 @@ def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False,
             p = out
 
         L[i] = []
-        for neighbour in node:
+
+        for k, neighbour in enumerate(node):
             #L[i,neighbour[0]] = p[neighbour[0]]
-            L[i].append((neighbour[0], p[neighbour[0]]))
+            if return_only_neighbours:
+                L[i].append((neighbour[0], p[k]))
+            else:
+                L[i].append((neighbour[0], p[neighbour[0]]))
 
     return L
