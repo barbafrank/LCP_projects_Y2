@@ -5,7 +5,7 @@ import random
 from matplotlib import pyplot as plt
 import matplotlib as mpl
 
-def plotNetworkClusters(A, clusters_vector, node_size=10, figsize=(10, 5),
+def plotNetworkClusters(A, clusters_vector, node_size=10, figsize=(15, 7),
                                         draw_edges=True, pos=None, colors=None):
 
     clusters = {k: v for k, v in enumerate(clusters_vector)}
