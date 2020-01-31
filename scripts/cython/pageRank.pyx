@@ -1,22 +1,23 @@
-import numpy as np
-import heapq as hq
+#!python
+#distutils: language=c++
+#cython: language_level=3, boundscheck=False
 
-def getDegree(edges):
-    if len(edges) == 0:
-        return 0
-    else:
-        degree = 0
-        for e in edges:
-            degree += e[1]
-        return degree
+import numpy as np
+cimport numpy as np
+import heapq as hq
+from scripts.cython.utils import getDegree
 
 #******************************************************************************
 # other pagerank stuffs
 # the function performs a push operation
-def push_other(p, r, c, u, neighbours, neighbours_deg, th):
+def push_other(np.ndarray p, np.ndarray r, double c, int u, list neighbours, np.ndarray neighbours_deg, double th):
+
+    cdef int n
+    cdef int i
+    cdef (int, double) e
 
     # update the vectors (they are passed as pointers)
-    delta = r[u]
+    cdef double delta = r[u]
     p[u] += (1-c)*delta
     r[u] = 0
 
@@ -24,7 +25,7 @@ def push_other(p, r, c, u, neighbours, neighbours_deg, th):
     # approximate pagerank which node needs to be
     # added into the priority queue for the next
     # iteration of the algorithm
-    r_above_th = [False]*len(neighbours)
+    cdef np.ndarray r_above_th = np.zeros([len(neighbours)], dtype=np.bool_)
 
     # update r again and define the values
     # of the indicator list
@@ -35,18 +36,29 @@ def push_other(p, r, c, u, neighbours, neighbours_deg, th):
         if (neighbours_deg[i] == 0 and r[0] != 0) or r[n]/neighbours_deg[i] >= th:
             r_above_th[i] = True
 
-    return r_above_th
+    return list(r_above_th)
 
-def approximateSimrank_other(A, N, D, v, c, epsilon, max_iters=200):
+def approximateSimrank_other(list A, int N, double D, int v, double c, double epsilon, int max_iters=200):
 
     # initialize the approximate PageRank vectors
-    p = np.zeros(N)
-    r = np.zeros(N)
+    cdef np.ndarray p = np.zeros([N], dtype=np.float64)
+    cdef np.ndarray r = np.zeros([N], dtype=np.float64)
+
+    cdef list pq = []
+    cdef double th
+    cdef double inv_th
+    cdef int iters = 0
+    cdef int u, i, n
+    cdef list neigh
+    cdef np.ndarray neigh_deg
+    cdef (int, double) e
+    cdef list r_above_th
+    cdef int flag
+
     r[v] = 1
 
     # for some reason pyhton decided to create a min pq
     # so we push the cost inverted (in this case d/1 = d)
-    pq = []
     hq.heappush(pq, (getDegree(A[v]), v))
 
     # precompute the inverse of epsilon for efficiency
@@ -54,13 +66,12 @@ def approximateSimrank_other(A, N, D, v, c, epsilon, max_iters=200):
     inv_th = D/epsilon
 
     # iterate over the heap as per defined in [1]
-    iters = 0
     while len(pq)>0 and pq[0][0] <= inv_th and iters < max_iters:
         u = hq.heappop(pq)[1]
         neigh = A[u]
 
         # compute the degrees of the neighbours
-        neigh_deg = [0]*len(neigh)
+        neigh_deg = np.zeros([len(neigh)], dtype=np.float64)
         for i, e in enumerate(neigh):
             n = e[0]
             neigh_deg[i] = getDegree(A[n])
@@ -85,7 +96,12 @@ def approximateSimrank_other(A, N, D, v, c, epsilon, max_iters=200):
 # define the lazy pagerank
 #*********************************************************+********************
 # the function performs a push operation
-def push(p, r, alpha, u, du, neighbours, neighbours_deg, epsilon):
+def push(np.ndarray p, np.ndarray r, double alpha, int u, double du,
+                    list neighbours, np.ndarray neighbours_deg, double epsilon):
+
+    cdef int n
+    cdef int i
+    cdef (int, double) e
 
     # update the vectors (they are passed as pointers)
     p[u] += alpha*r[u]
@@ -95,7 +111,7 @@ def push(p, r, alpha, u, du, neighbours, neighbours_deg, epsilon):
     # approximate pagerank which node needs to be
     # added into the priority queue for the next
     # iteration of the algorithm
-    r_above_th = [False]*len(neighbours)
+    cdef np.ndarray r_above_th = np.zeros([len(neighbours)], dtype=np.bool_)
 
     # update r again and define the values
     # of the indicator list
@@ -106,21 +122,30 @@ def push(p, r, alpha, u, du, neighbours, neighbours_deg, epsilon):
         if (neighbours_deg[i] == 0 and r[n] != 0) or r[n]/neighbours_deg[i] >= epsilon:
             r_above_th[i] = True
 
-    return r_above_th
+    return list(r_above_th)
 
-def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
-                            return_residual=False, return_only_neighbours=False):
+def approximateSimrank(list A, int v, double alpha, double epsilon, int max_iters=200,
+                            int return_residual=False, int return_only_neighbours=False):
     # compute N
-    N = len(A)
+    cdef int N = len(A)
 
     # initialize the approximate PageRank vectors
-    p = np.zeros(N)
-    r = np.zeros(N)
+    cdef np.ndarray p = np.zeros([N], dtype=np.float64)
+    cdef np.ndarray r = np.zeros([N], dtype=np.float64)
+
+    cdef list pq = []
+    cdef double inv_epsilon, du
+    cdef list v_neighs, neigh
+    cdef int iters
+    cdef int u, i, flag
+    cdef np.ndarray neigh_deg
+    cdef (int, double) e
+    cdef list r_above_th
+
     r[v] = 1
 
     # for some reason pyhton decided to create a min pq
     # so we push the cost inverted (in this case d/1 = d)
-    pq = []
     hq.heappush(pq, (getDegree(A[v]), v))
 
     # precompute the inverse of epsilon for efficiency
@@ -136,7 +161,7 @@ def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
         neigh = A[u]
 
         # compute the degrees of the neighbours
-        neigh_deg = [0]*len(neigh)
+        neigh_deg = np.zeros([len(neigh)], dtype=np.float64)
         du = 0
         for i, e in enumerate(neigh):
             n = e[0]
@@ -170,26 +195,27 @@ def approximateSimrank(A, v, alpha, epsilon, max_iters=200,
 
 # the function creates the L matrix iterating locally the approximate simrank
 #def localPageRank(A, N, D, c, epsilon=1e-5, max_iters=200):
-def localPageRank(A, c, epsilon=1e-5, max_iters=200, return_residual=False,
-                                                    return_only_neighbours=False):
-    N = len(A)
+def localPageRank(list A, double c, double epsilon=1e-5, int max_iters=200,
+                                                int return_only_neighbours=False):
+
+    cdef int N = len(A)
     #L = np.zeros((N, N))
-    L = [None]*N
+    cdef list L = [None]*N
 
     # equivalent lazy pagerank constant
-    alpha = 2*c/(1+c)
+    cdef double alpha = 2*c/(1+c)
     # andersen's paper inverts alpha
     alpha = 1-alpha
 
+    cdef int i, k
+    cdef list node
+    cdef np.ndarray p
+    cdef (int, double) neighbour
+
     for i, node in enumerate(A):
         #p = approximateSimrank(A, N, D, i, c, epsilon, max_iters)
-        out = approximateSimrank(A, i, alpha, epsilon, max_iters, return_residual,
+        p = approximateSimrank(A, i, alpha, epsilon, max_iters, False,
                                                             return_only_neighbours)
-
-        if return_residual:
-            p, r = out
-        else:
-            p = out
 
         L[i] = []
 

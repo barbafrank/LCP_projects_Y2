@@ -1,0 +1,3 @@
+To build the extensions for the current architecture, if not present, run the following command:
+
+python setup.py build_ext --inplace

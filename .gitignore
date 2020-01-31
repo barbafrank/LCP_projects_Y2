@@ -6,3 +6,7 @@
 
 # OSX
 **/.DS_Store
+
+# cython builds
+scripts/cython/build/temp.*
+scripts/cython/*.c

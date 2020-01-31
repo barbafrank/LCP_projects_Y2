@@ -1,3 +1,7 @@
+#!python
+#distutils: language=c++
+#cython: language_level=3
+
 import networkx as nx
 import scipy
 import numpy as np

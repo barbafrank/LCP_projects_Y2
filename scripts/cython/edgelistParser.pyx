@@ -1,13 +1,20 @@
 #!python
-#cython: language_level=3
+#distutils: language=c++
+#cython: language_level=3, boundscheck=False
+from scripts.cython.utils import getDegree
+
+ctypedef (int, int, double) edge_t
 
 # define the routine that parses a text file
 # into the efficient adjacency representation
 # needed by the other functions
-def edgelistParser(path, enc_type="list"):
+def edgelistParser(str path, str enc_type="list"):
 
     # initialize the edge dictionary
-    edge_dict = {}
+    cdef dict edge_dict = {}
+    cdef list raw_edge, A
+    cdef edge_t edge
+    cdef int N, D
 
     # exprects the dump of the upprer tringular part of
     # a symmetric adjacency matrix, meaning the network
@@ -27,9 +34,9 @@ def edgelistParser(path, enc_type="list"):
                 assert len(raw_edge)>1, "There must be at least 2 numbers per line"
                 # check if weighted
                 if len(raw_edge)>2:
-                    edge = tuple([int(val) for val in raw_edge[:-1]])
+                    edge = tuple([int(val) for val in raw_edge[:-2]]) + (float(raw_edge[-2]),)
                 else:
-                    edge = tuple([int(val) for val in raw_edge]) + (1,)
+                    edge = tuple([int(val) for val in raw_edge]) + (1.,)
 
                 # add the edges to the dictionary
                 if edge[0] in edge_dict:
@@ -88,7 +95,7 @@ def edgelistParser(path, enc_type="list"):
         for n in range(N):
             if n in edge_dict:
                 A[n] = edge_dict[n]
-                D += len(A[n])
+                D += getDegree(A[n])
 
         return (A, N, D)
     else:
