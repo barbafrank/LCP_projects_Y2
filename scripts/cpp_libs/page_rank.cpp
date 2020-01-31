@@ -1,44 +1,31 @@
-#include <Python/Python.h>
-#include <tuple>
+#include <utility>
 #include <vector>
 #include <queue>
+#include "page_rank.h"
 
-typedef std::tuple<int, double> edge_t;
-typedef std::vector<edge_t> nodelist_t;
-typedef std::vector<nodelist_t> edgelist_t;
-typedef std::vector<double> double_vec_t;
-typedef std::vector<bool> bool_vec_t;
-typedef std::tuple<double_vec_t, double_vec_t> double_vec_tuple_t;
-
-class queue_elem_t{
-  public:
-     int node;
-     double weight;
-
-     queue_elem_t(int node, double weight){
-       this->node = node;
-       this->weight = weight;
-     }
-
-     bool operator>(const queue_elem_t& rhs) const{
-       return this->weight > rhs.weight;
-     }
-     bool operator>=(const queue_elem_t& rhs) const{
-       return this->weight >= rhs.weight;
-     }
-     bool operator<(const queue_elem_t& rhs) const{
-       return this->weight < rhs.weight;
-     }
-     bool operator<=(const queue_elem_t& rhs) const{
-       return this->weight <= rhs.weight;
-     }
-     bool operator==(const queue_elem_t& rhs) const{
-       return this->weight == rhs.weight;
-     }
-     bool operator!=(const queue_elem_t& rhs) const{
-       return this->weight != rhs.weight;
-     }
-};
+// define class methods
+queue_elem_t::queue_elem_t(int node, double weight){
+  this->node = node;
+  this->weight = weight;
+}
+bool queue_elem_t::operator>(const queue_elem_t& rhs) const{
+  return this->weight > rhs.weight;
+}
+bool queue_elem_t::operator>=(const queue_elem_t& rhs) const{
+  return this->weight >= rhs.weight;
+}
+bool queue_elem_t::operator<(const queue_elem_t& rhs) const{
+  return this->weight < rhs.weight;
+}
+bool queue_elem_t::operator<=(const queue_elem_t& rhs) const{
+  return this->weight <= rhs.weight;
+}
+bool queue_elem_t::operator==(const queue_elem_t& rhs) const{
+  return this->weight == rhs.weight;
+}
+bool queue_elem_t::operator!=(const queue_elem_t& rhs) const{
+  return this->weight != rhs.weight;
+}
 
 // all of the functions below are defined using c-types
 // they can be accessed through python using the python handler
@@ -63,7 +50,7 @@ bool_vec_t push(double_vec_t *p, double_vec_t *r,
   // initialize r_above_th
   bool_vec_t r_above_th = bool_vec_t(neighbours.size(), false);
 
-  for(int i=0; i<neighbours.size(); i++){
+  for(size_t i=0; i<neighbours.size(); i++){
     int n = std::get<0>(neighbours[i]);
     (*r)[n] += (1.0-alpha)*(*r)[u]/(2.0*du);
 
@@ -76,10 +63,10 @@ bool_vec_t push(double_vec_t *p, double_vec_t *r,
 }
 
 // c-type implementation of the approximateSimrank
-double_vec_tuple_t approximateSimrank(edgelist_t A, int v, double alpha,
-            double epsilon, int max_iters=200, bool return_only_neighbours=false){
+double_vec_pair_t approximateSimrank(edgelist_t A, int v, double alpha,
+                    double epsilon, int max_iters, bool return_only_neighbours){
 
-  int N = A.size();
+  size_t N = A.size();
 
   double_vec_t p = double_vec_t(N, 0.);
   double_vec_t r = double_vec_t(N, 0.);
@@ -92,7 +79,7 @@ double_vec_tuple_t approximateSimrank(edgelist_t A, int v, double alpha,
   double inv_epsilon = 1.0/epsilon;
 
   std::vector<int> v_neighs = std::vector<int>(A[v].size());
-  for(int i=0; i<A[v].size(); i++){
+  for(size_t i=0; i<A[v].size(); i++){
     v_neighs[i] = std::get<0>(A[v][i]);
   }
 
@@ -105,7 +92,7 @@ double_vec_tuple_t approximateSimrank(edgelist_t A, int v, double alpha,
 
     double_vec_t neigh_deg = double_vec_t(neigh.size(), 0);
     double du = 0;
-    for(int i=0; i<neigh.size(); i++){
+    for(size_t i=0; i<neigh.size(); i++){
       int n = std::get<0>(neigh[i]);
       du += std::get<1>(neigh[i]);
       neigh_deg[i] = getDegree(A[n]);
@@ -113,7 +100,7 @@ double_vec_tuple_t approximateSimrank(edgelist_t A, int v, double alpha,
 
     bool_vec_t r_above_th = push(&p, &r, alpha, u, du, neigh, neigh_deg, epsilon);
 
-    for(int i=0; i<r_above_th.size(); i++){
+    for(size_t i=0; i<r_above_th.size(); i++){
       if(r_above_th[i]){
         int n = std::get<0>(neigh[i]);
         pq.push(queue_elem_t(n, neigh_deg[i]/r[n]));
@@ -122,28 +109,28 @@ double_vec_tuple_t approximateSimrank(edgelist_t A, int v, double alpha,
 
     iters++;
   }
-  return double_vec_tuple_t(p, r);
+  return double_vec_pair_t(p, r);
 }
 
 
-edgelist_t localPageRank(edgelist_t A, double c, double epsilon=1e-5,
-      int max_iters=200, bool return_only_neighbours=false){
+edgelist_t localPageRank(edgelist_t A, double c, double epsilon,
+                                    int max_iters, bool return_only_neighbours){
 
-  int N = A.size();
+  size_t N = A.size();
   edgelist_t L = edgelist_t(N);
 
   double alpha = 2*c/(1+c);
   // andersen's paper inverts alpha
   alpha = 1-alpha;
 
-  for(int i=0; i<N; i++){
+  for(size_t i=0; i<N; i++){
     // out = (p, r)
-    double_vec_tuple_t out = approximateSimrank(A, i, alpha,  epsilon, max_iters, return_only_neighbours);
+    double_vec_pair_t out = approximateSimrank(A, i, alpha,  epsilon, max_iters, return_only_neighbours);
 
     // create the new nodelist
     L[i] = nodelist_t();
 
-    for(int k=0; k<A[i].size(); k++){
+    for(size_t k=0; k<A[i].size(); k++){
       if(return_only_neighbours){
         L[i].push_back(edge_t(std::get<0>(A[i][k]), std::get<0>(out)[k]));
       }else{
@@ -155,7 +142,8 @@ edgelist_t localPageRank(edgelist_t A, double c, double epsilon=1e-5,
   return L;
 }
 
-int main(int argc, char const *argv[]) {
-  
+/*
+int main(){
   return 0;
 }
+*/

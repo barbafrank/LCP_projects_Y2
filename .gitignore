@@ -10,3 +10,5 @@
 # cython builds
 scripts/cython/build/temp.*
 scripts/cython/*.c
+scripts/cpp_libs/build/temp.*
+scripts/cpp_libs/*Cpp.cpp
