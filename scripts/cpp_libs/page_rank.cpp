@@ -1,7 +1,9 @@
 #include <utility>
 #include <vector>
 #include <queue>
+#include <iostream>
 #include "page_rank.h"
+
 
 // define class methods
 queue_elem_t::queue_elem_t(int node, double weight){
@@ -39,22 +41,22 @@ double getDegree(nodelist_t edges){
 }
 
 // c-type implementation of the push operation
-bool_vec_t push(double_vec_t *p, double_vec_t *r,
-                double alpha, int u, double du, nodelist_t neighbours,
-                                  double_vec_t neighbours_deg, double epsilon){
+bool_vec_t push(double_vec_t &p, double_vec_t &r,
+                double alpha, int u, double du, nodelist_t &neighbours,
+                                  double_vec_t &neighbours_deg, double epsilon){
 
   //update p and r
-  (*p)[u] += alpha*(*r)[u];
-  (*r)[u] *= (1.0-alpha)/2.;
+  p[u] += alpha*r[u];
+  r[u] *= (1.0-alpha)/2.;
 
   // initialize r_above_th
   bool_vec_t r_above_th = bool_vec_t(neighbours.size(), false);
 
   for(size_t i=0; i<neighbours.size(); i++){
     int n = std::get<0>(neighbours[i]);
-    (*r)[n] += (1.0-alpha)*(*r)[u]/(2.0*du);
+    r[n] += (1.0-alpha)*r[u]/(2.0*du);
 
-    if((neighbours_deg[i] == 0 && (*r)[n] != 0) || (*r)[n]/neighbours_deg[i] >= epsilon){
+    if((neighbours_deg[i] == 0 && r[n] != 0) || r[n]/neighbours_deg[i] >= epsilon){
       r_above_th[i] = true;
     }
   }
@@ -63,7 +65,7 @@ bool_vec_t push(double_vec_t *p, double_vec_t *r,
 }
 
 // c-type implementation of the approximateSimrank
-double_vec_pair_t approximateSimrank(edgelist_t A, int v, double alpha,
+double_vec_pair_t approximateSimrank(edgelist_t &A, int v, double alpha,
                     double epsilon, int max_iters, bool return_only_neighbours){
 
   size_t N = A.size();
@@ -72,11 +74,9 @@ double_vec_pair_t approximateSimrank(edgelist_t A, int v, double alpha,
   double_vec_t r = double_vec_t(N, 0.);
   r[v] = 1;
 
-  // define the min-pq as per python
-  std::priority_queue<queue_elem_t, std::vector<queue_elem_t>, std::less<queue_elem_t>> pq;
-  pq.push(queue_elem_t(v, getDegree(A[v])));
-
-  double inv_epsilon = 1.0/epsilon;
+  // this is a max-pq, as in the paper
+  std::priority_queue<queue_elem_t, std::vector<queue_elem_t>> pq;
+  pq.push(queue_elem_t(v, 1./getDegree(A[v])));
 
   std::vector<int> v_neighs = std::vector<int>(A[v].size());
   for(size_t i=0; i<A[v].size(); i++){
@@ -84,36 +84,48 @@ double_vec_pair_t approximateSimrank(edgelist_t A, int v, double alpha,
   }
 
   int iters = 0;
-  while(pq.size()>0 && pq.top().weight <= inv_epsilon && iters<max_iters){
+  while(pq.size()>0 && pq.top().weight >= epsilon && iters<max_iters){
     int u = pq.top().node;
     pq.pop();
 
     nodelist_t neigh = A[u];
-
     double_vec_t neigh_deg = double_vec_t(neigh.size(), 0);
     double du = 0;
+
     for(size_t i=0; i<neigh.size(); i++){
       int n = std::get<0>(neigh[i]);
       du += std::get<1>(neigh[i]);
       neigh_deg[i] = getDegree(A[n]);
     }
 
-    bool_vec_t r_above_th = push(&p, &r, alpha, u, du, neigh, neigh_deg, epsilon);
+    bool_vec_t r_above_th = push(p, r, alpha, u, du, neigh, neigh_deg, epsilon);
 
     for(size_t i=0; i<r_above_th.size(); i++){
       if(r_above_th[i]){
         int n = std::get<0>(neigh[i]);
-        pq.push(queue_elem_t(n, neigh_deg[i]/r[n]));
+        pq.push(queue_elem_t(n, r[n]/neigh_deg[i]));
       }
     }
 
     iters++;
   }
-  return double_vec_pair_t(p, r);
+
+  if(!return_only_neighbours){
+    return double_vec_pair_t(p, r);
+  }else{
+    double_vec_t p1 = double_vec_t(v_neighs.size(), 0.);
+    double_vec_t r1 = double_vec_t(v_neighs.size(), 0.);
+
+    for(size_t i=0; i<v_neighs.size(); i++){
+      p1[i] = p[v_neighs[i]];
+      r1[i] = r[v_neighs[i]];
+    }
+    return double_vec_pair_t(p1, r1);
+  }
 }
 
 
-edgelist_t localPageRank(edgelist_t A, double c, double epsilon,
+edgelist_t localPageRank(edgelist_t &A, double c, double epsilon,
                                     int max_iters, bool return_only_neighbours){
 
   size_t N = A.size();
@@ -126,15 +138,22 @@ edgelist_t localPageRank(edgelist_t A, double c, double epsilon,
   for(size_t i=0; i<N; i++){
     // out = (p, r)
     double_vec_pair_t out = approximateSimrank(A, i, alpha,  epsilon, max_iters, return_only_neighbours);
-
     // create the new nodelist
-    L[i] = nodelist_t();
+    L[i] = nodelist_t(A[i].size());
+
+    //std::cout << "Computed p for node " << i <<": [";
+    //for(double weight:std::get<0>(out)){
+    //  std::cout << weight << ", ";
+    //}
+    //std::cout << "]" << std::endl;
 
     for(size_t k=0; k<A[i].size(); k++){
       if(return_only_neighbours){
-        L[i].push_back(edge_t(std::get<0>(A[i][k]), std::get<0>(out)[k]));
+        L[i][k] = edge_t(std::get<0>(A[i][k]), std::get<0>(out)[k]);
+        //std::cout << "adding edge: (" << std::get<0>(A[i][k]) << ", " << std::get<0>(out)[k] << ")";
+        //std::cout << " for node: " << i << std::endl;
       }else{
-        L[i].push_back(edge_t(std::get<0>(A[i][k]), std::get<0>(out)[std::get<0>(A[i][k])]));
+        L[i][k] = edge_t(std::get<0>(A[i][k]), std::get<0>(out)[std::get<0>(A[i][k])]);
       }
     }
 

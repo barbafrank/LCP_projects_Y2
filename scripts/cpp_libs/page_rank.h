@@ -30,13 +30,13 @@ typedef std::pair<double_vec_t, double_vec_t> double_vec_pair_t;
 // c-only implementation of getDegree
 double getDegree(nodelist_t edges);
 // c-only implementation of the push operation
-bool_vec_t push(double_vec_t *p, double_vec_t *r,
-                double alpha, int u, double du, nodelist_t neighbours,
-                                  double_vec_t neighbours_deg, double epsilon);
+bool_vec_t push(double_vec_t &p, double_vec_t &r,
+                double alpha, int u, double du, nodelist_t &neighbours,
+                                  double_vec_t &neighbours_deg, double epsilon);
 // c-only implementation of the approximateSimrank
-double_vec_pair_t approximateSimrank(edgelist_t A, int v, double alpha,
+double_vec_pair_t approximateSimrank(edgelist_t &A, int v, double alpha,
             double epsilon, int max_iters=200, bool return_only_neighbours=false);
 // c-only implementation of the localPageRank
-edgelist_t localPageRank(edgelist_t A, double c, double epsilon=1e-5,
+edgelist_t localPageRank(edgelist_t &A, double c, double epsilon=1e-5,
                             int max_iters=200, bool return_only_neighbours=false);
 #endif
