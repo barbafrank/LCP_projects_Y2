@@ -53,3 +53,20 @@ def getInOutDegree(list edgelist):
         outDegs[i] = out_deg
 
     return list(inDegs), list(outDegs)
+
+# compute the transposition of the edgelist
+def transposeEdgelist(list edgelist):
+    cdef int N = len(edgelist)
+    cdef list edgelist_t = [[]]*N
+    cdef int i
+    cdef list nodelist
+    cdef (int, double) edge
+
+    for i in range(len(edgelist_t)):
+        edgelist_t[i] = []
+
+    for i, nodelist in enumerate(edgelist):
+        for edge in nodelist:
+            edgelist_t[edge[0]].append((i, edge[1]))
+
+    return edgelist_t
