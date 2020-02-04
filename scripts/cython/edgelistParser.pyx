@@ -14,7 +14,8 @@ def edgelistParser(str path, str enc_type="list"):
     cdef dict edge_dict = {}
     cdef list raw_edge, A
     cdef edge_t edge
-    cdef int N, D
+    cdef (int, double) clean_edge
+    cdef int N, D, min_n
 
     # exprects the dump of the upprer tringular part of
     # a symmetric adjacency matrix, meaning the network
@@ -50,14 +51,15 @@ def edgelistParser(str path, str enc_type="list"):
                         edge_dict[edge[1]] = [(edge[0], edge[2])]
 
         # finally convert to list and return
-        N = max(edge_dict.keys())+1
+        min_n = min(edge_dict.keys())
+        N = max(edge_dict.keys())-min_n+1
         A = [[]]*N
         D = 0
 
         for n in range(N):
-            if n in edge_dict:
-                A[n] = edge_dict[n]
-                D += len(A[n])
+            if n+min_n in edge_dict:
+                A[n] = [(clean_edge[0]-min_n, clean_edge[1]) for clean_edge in edge_dict[n+min_n]]
+                D += getDegree(A[n])
 
         return (A, N, D)
     # expects duplicated links, as per a undirected
@@ -88,13 +90,14 @@ def edgelistParser(str path, str enc_type="list"):
                     edge_dict[edge[0]] = [(edge[1], edge[2])]
 
         # finally convert to list and return
-        N = max(edge_dict.keys())+1
+        min_n = min(edge_dict.keys())
+        N = max(edge_dict.keys())-min_n+1
         A = [[]]*N
         D = 0
 
         for n in range(N):
-            if n in edge_dict:
-                A[n] = edge_dict[n]
+            if n+min_n in edge_dict:
+                A[n] = [(clean_edge[0]-min_n, clean_edge[1]) for clean_edge in edge_dict[n+min_n]]
                 D += getDegree(A[n])
 
         return (A, N, D)

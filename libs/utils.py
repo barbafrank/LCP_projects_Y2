@@ -42,3 +42,16 @@ def transposeEdgelist(edgelist):
             edgelist_t[edge[0]].append((i, edge[1]))
 
     return edgelist_t
+
+def reorderEdgelist(edgelist, new_idxs):
+    N = len(edgelist)
+    edgelist_t = [[]]*N
+
+    for i in range(len(edgelist_t)):
+        edgelist_t[i] = []
+
+    for i, nodelist in enumerate(edgelist):
+        for edge in nodelist:
+            edgelist_t[new_idxs[i]].append((new_idxs[edge[0]], edge[1]))
+
+    return edgelist_t

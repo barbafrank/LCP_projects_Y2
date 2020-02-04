@@ -1,3 +1,6 @@
+#from libs.approximateSimrank import getDegree
+from libs.page_rank import getDegree
+
 # define the routine that parses a text file
 # into the efficient adjacency representation
 # needed by the other functions
@@ -40,14 +43,15 @@ def edgelistParser(path, enc_type="list"):
                         edge_dict[edge[1]] = [(edge[0], edge[2])]
 
         # finally convert to list and return
-        N = max(edge_dict.keys())+1
+        min_n = min(edge_dict.keys())
+        N = max(edge_dict.keys())-min_n+1
         A = [[]]*N
         D = 0
 
         for n in range(N):
-            if n in edge_dict:
-                A[n] = edge_dict[n]
-                D += len(A[n])
+            if n+min_n in edge_dict:
+                A[n] = [(edge[0]-min_n, edge[1]) for edge in edge_dict[n+min_n]]
+                D += getDegree(A[n])
 
         return (A, N, D)
     # expects duplicated links, as per a undirected
@@ -78,14 +82,15 @@ def edgelistParser(path, enc_type="list"):
                     edge_dict[edge[0]] = [(edge[1], edge[2])]
 
         # finally convert to list and return
-        N = max(edge_dict.keys())+1
+        min_n = min(edge_dict.keys())
+        N = max(edge_dict.keys())-min_n+1
         A = [[]]*N
         D = 0
 
         for n in range(N):
-            if n in edge_dict:
-                A[n] = edge_dict[n]
-                D += len(A[n])
+            if n+min_n in edge_dict:
+                A[n] = [(edge[0]-min_n, edge[1]) for edge in edge_dict[n+min_n]]
+                D += getDegree(A[n])
 
         return (A, N, D)
     else:
