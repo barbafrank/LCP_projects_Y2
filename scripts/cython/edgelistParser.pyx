@@ -12,10 +12,11 @@ def edgelistParser(str path, str enc_type="list"):
 
     # initialize the edge dictionary
     cdef dict edge_dict = {}
-    cdef list raw_edge, A
+    cdef dict idxs_map
+    cdef list raw_edge, A, original_idxs
     cdef edge_t edge
     cdef (int, double) clean_edge
-    cdef int N, D, min_n
+    cdef int N, n
 
     # exprects the dump of the upprer tringular part of
     # a symmetric adjacency matrix, meaning the network
@@ -51,17 +52,17 @@ def edgelistParser(str path, str enc_type="list"):
                         edge_dict[edge[1]] = [(edge[0], edge[2])]
 
         # finally convert to list and return
-        min_n = min(edge_dict.keys())
-        N = max(edge_dict.keys())-min_n+1
+        idxs_map = {n:i for i, n in enumerate(edge_dict.keys())}
+        original_idxs = list(idxs_map.keys())
+        N = len(edge_dict.keys())
         A = [[]]*N
-        D = 0
 
         for n in range(N):
-            if n+min_n in edge_dict:
-                A[n] = [(clean_edge[0]-min_n, clean_edge[1]) for clean_edge in edge_dict[n+min_n]]
-                D += getDegree(A[n])
+            A[n] = []
+            if original_idxs[n] in edge_dict:
+                A[n] = [(idxs_map[clean_edge[0]], clean_edge[1]) for clean_edge in edge_dict[original_idxs[n]]]
 
-        return (A, N, D)
+        return (A, N, original_idxs)
     # expects duplicated links, as per a undirected
     # network saved as directed
     elif enc_type == "raw_list":
@@ -90,16 +91,16 @@ def edgelistParser(str path, str enc_type="list"):
                     edge_dict[edge[0]] = [(edge[1], edge[2])]
 
         # finally convert to list and return
-        min_n = min(edge_dict.keys())
-        N = max(edge_dict.keys())-min_n+1
+        idxs_map = {n:i for i, n in enumerate(edge_dict.keys())}
+        original_idxs = list(idxs_map.keys())
+        N = len(edge_dict.keys())
         A = [[]]*N
-        D = 0
 
         for n in range(N):
-            if n+min_n in edge_dict:
-                A[n] = [(clean_edge[0]-min_n, clean_edge[1]) for clean_edge in edge_dict[n+min_n]]
-                D += getDegree(A[n])
+            A[n] = []
+            if original_idxs[n] in edge_dict:
+                A[n] = [(idxs_map[clean_edge[0]], clean_edge[1]) for clean_edge in edge_dict[original_idxs[n]]]
 
-        return (A, N, D)
+        return (A, N, original_idxs)
     else:
         raise Exception("No such encoding type:", enc_type)
