@@ -46,7 +46,8 @@ bool_vec_t push(double_vec_t &p, double_vec_t &r,
     int n = neighbours[i];
     r[n] += (1.0-alpha)*r[u]/(2.0*du);
 
-    if((neighbours_deg[i] == 0 && r[n] != 0) || r[n]/neighbours_deg[i] >= epsilon){
+    // if its a neighbour the degree cannot be 0
+    if(r[n]/neighbours_deg[i] >= epsilon){
       r_above_th[i] = true;
     }
   }
@@ -172,7 +173,8 @@ bool_vec_t push_weight(double_vec_t &p, double_vec_t &r,
     int n = std::get<0>(neighbours[i]);
     r[n] += (1.0-alpha)*r[u]/(2.0*du);
 
-    if((neighbours_deg[i] == 0 && r[n] != 0) || r[n]/neighbours_deg[i] >= epsilon){
+    // if its a neighbour the degree cannot be 0
+    if(r[n]/neighbours_deg[i] >= epsilon){
       r_above_th[i] = true;
     }
   }
@@ -256,12 +258,6 @@ edgelist_weight_t localPageRank_weight(edgelist_weight_t &A, double c, double ep
     double_vec_pair_t out = approximateSimrank_weight(A, i, alpha,  epsilon, max_iters, return_only_neighbours);
     // create the new nodelist
     L[i] = nodelist_weight_t(A[i].size());
-
-    //std::cout << "Computed p for node " << i <<": [";
-    //for(double weight:std::get<0>(out)){
-    //  std::cout << weight << ", ";
-    //}
-    //std::cout << "]" << std::endl;
 
     for(size_t k=0; k<A[i].size(); k++){
       if(return_only_neighbours){
