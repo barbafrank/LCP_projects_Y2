@@ -52,7 +52,7 @@ bool_vec_t push_weight(double_vec_t &p, double_vec_t &r,
                 double alpha, int u, double du, nodelist_weight_t &neighbours,
                                   double_vec_t &neighbours_deg, double epsilon);
 // c-only implementation of the approximateSimrank
-double_vec_pair_t approximateSimrank_weight(edgelist_weight_t &A, int v, double alpha,
+double_vec_pair_t approximateSimrank_weight(edgelist_weight_t &A, double_vec_t &degs, int v, double alpha,
             double epsilon, int max_iters=200, bool return_only_neighbours=false);
 // c-only implementation of the localPageRank
 edgelist_weight_t localPageRank_weight(edgelist_weight_t &A, double c, double epsilon=1e-5,

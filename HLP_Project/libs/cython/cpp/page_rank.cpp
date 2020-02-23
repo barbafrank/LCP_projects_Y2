@@ -183,7 +183,7 @@ bool_vec_t push_weight(double_vec_t &p, double_vec_t &r,
 }
 
 // c-type implementation of the approximateSimrank
-double_vec_pair_t approximateSimrank_weight(edgelist_weight_t &A, int v, double alpha,
+double_vec_pair_t approximateSimrank_weight(edgelist_weight_t &A, double_vec_t &degs, int v, double alpha,
                     double epsilon, int max_iters, bool return_only_neighbours){
 
   size_t N = A.size();
@@ -213,7 +213,7 @@ double_vec_pair_t approximateSimrank_weight(edgelist_weight_t &A, int v, double 
     for(size_t i=0; i<neigh.size(); i++){
       int n = std::get<0>(neigh[i]);
       du += std::get<1>(neigh[i]);
-      neigh_deg[i] = getDegree(A[n]);
+      neigh_deg[i] = degs[n];
     }
 
     bool_vec_t r_above_th = push_weight(p, r, alpha, u, du, neigh, neigh_deg, epsilon);
@@ -253,9 +253,14 @@ edgelist_weight_t localPageRank_weight(edgelist_weight_t &A, double c, double ep
   // andersen's paper inverts alpha
   alpha = 1-alpha;
 
+  // precompute the degrees for much faster computation
+  double_vec_t degs = double_vec_t(N, 0.);
+  for(size_t i = 0; i<degs.size(); i++)
+    degs[i] = getDegree(A[i]);
+
   for(size_t i=0; i<N; i++){
     // out = (p, r)
-    double_vec_pair_t out = approximateSimrank_weight(A, i, alpha,  epsilon, max_iters, return_only_neighbours);
+    double_vec_pair_t out = approximateSimrank_weight(A, degs, i, alpha,  epsilon, max_iters, return_only_neighbours);
     // create the new nodelist
     L[i] = nodelist_weight_t(A[i].size());
 
