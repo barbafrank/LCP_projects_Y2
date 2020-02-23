@@ -1,0 +1,51 @@
+Nodes: 52, AvgDeg: 11.23076923076923
+Unweigted: 2.73 ms ± 153 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+Weigted: 2.64 ms ± 81.5 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+Nodes: 61, AvgDeg: 17.704918032786885
+Unweigted: 3.82 ms ± 24.9 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+Weigted: 3.86 ms ± 35.7 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+Nodes: 150, AvgDeg: 45.14666666666667
+Unweigted: 16.4 ms ± 115 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+Weigted: 16.2 ms ± 20.4 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+Nodes: 168, AvgDeg: 39.42857142857143
+Unweigted: 15 ms ± 50.9 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+Weigted: 15.1 ms ± 49.3 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+Nodes: 224, AvgDeg: 57.0
+Unweigted: 24.4 ms ± 286 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Weigted: 24.5 ms ± 267 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Nodes: 333, AvgDeg: 30.25825825825826
+Unweigted: 26.1 ms ± 332 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Weigted: 26.2 ms ± 368 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Nodes: 534, AvgDeg: 36.052434456928836
+Unweigted: 47.2 ms ± 306 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Weigted: 47.2 ms ± 277 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Nodes: 747, AvgDeg: 160.7764390896921
+Unweigted: 129 ms ± 464 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Weigted: 130 ms ± 448 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Nodes: 786, AvgDeg: 71.36895674300254
+Unweigted: 101 ms ± 747 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Weigted: 101 ms ± 367 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Nodes: 1034, AvgDeg: 103.47775628626692
+Unweigted: 155 ms ± 460 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Weigted: 155 ms ± 377 µs per loop (mean ± std. dev. of 7 runs, 10 loops each)
+Nodes: 4039, AvgDeg: 43.69101262688784
+Unweigted: 442 ms ± 5.3 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Weigted: 437 ms ± 2.52 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Nodes: 7115, AvgDeg: 29.146591707659873
+Unweigted: 704 ms ± 5.13 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Weigted: 694 ms ± 4.11 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Nodes: 12008, AvgDeg: 39.472684876748836
+Unweigted: 1.24 s ± 13.2 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Weigted: 1.27 s ± 34.9 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Nodes: 36692, AvgDeg: 20.040444783604055
+Unweigted: 6.4 s ± 11.4 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Weigted: 6.4 s ± 11.4 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Nodes: 62586, AvgDeg: 4.726040967628543
+Unweigted: 7.78 s ± 23.1 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Weigted: 7.76 s ± 7.62 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Nodes: 265214, AvgDeg: 3.1634868445858815
+Unweigted: 2min 29s ± 1.17 s per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Weigted: 2min 27s ± 1.46 s per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Nodes: 317080, AvgDeg: 6.622089062697111
+Unweigted: 2min 45s ± 2.01 s per loop (mean ± std. dev. of 7 runs, 1 loop each)
+Weigted: 2min 45s ± 2.26 s per loop (mean ± std. dev. of 7 runs, 1 loop each)
