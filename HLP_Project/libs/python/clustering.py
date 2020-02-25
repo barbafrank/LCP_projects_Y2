@@ -30,7 +30,81 @@ def build_network(path, sep='\t', radius=1, weighted=False):
     A = generate_edges(positions, radius, weighted)
     return A, positions
 
-def cluster4(L):
+def cluster1(L_norm, centroids, alpha):
+    # initialize the output vector with the clusters
+    clusters = - np.ones(len(L_norm))
+    
+    # initialize the heap queues related to the clusters
+    queues = []
+    
+    # insert centroids in the queues, e.g. (expansions, (node, rank))
+    for i in range(centroids.size):
+        queue = []
+        hq.heappush(queue, (0, (centroids[i], 1)))
+        queues.append(queue)
+        
+        # set the centroid cluster
+        clusters[centroids[i]] = centroids[i]
+    
+    # iterate until all the nodes are assigned to the clusters   
+    exit_ext = False
+    while not exit_ext:
+        cumulative_length = 0
+        for queue in queues:
+            # assign the new expansions
+            for i, node in enumerate(queue):
+                # ensure at least one expansion per node
+                expansions = max(1, np.round(alpha*node[1][1])) # TODO: eventually change the round function
+                
+                # modify the queue element with the new expansions
+                queue[i] = (
+                    - expansions,
+                    (node[1][0], node[1][1])
+                )
+            
+            # restore the queue
+            hq.heapify(queue)
+        
+            # expand the cluster boundary toward the high ranked nodes
+            exit_int = False
+            while (not exit_int) and len(queue)>0:
+                # pop a node that should be expanded 
+                node = hq.heappop(queue)
+                
+                # check the termination condition
+                expansions_opp = node[0]
+                if expansions_opp==0:
+                    # no more nodes to expand
+                    exit_int = True
+                else:
+                    # reduce the remained number of expansions
+                    expansions_opp += 1
+                    
+                    # expand the neighbourhood and assign the new expansions
+                    for edge in L_norm[node[1][0]]:
+                        #print(neighbour)
+                        neighbour = edge[0]
+                        # assign the node to the cluster
+                        if clusters[neighbour]<0:
+                            #print("assigned")
+                            clusters[neighbour] = clusters[node[1][0]]
+                            
+                            # add the node to the queue
+                            rank = edge[1]
+                            hq.heappush(
+                                queue,
+                                (
+                                    np.round(expansions_opp*rank),
+                                    (neighbour, rank)
+                                )
+                            )
+            cumulative_length += len(queue) 
+        exit_ext = cumulative_length==0
+    
+    # return the vector with the clusters
+    return clusters
+
+def cluster3(L):
     clusters = -np.ones(len(L), dtype=int)
     parents = np.zeros(len(L), dtype=int)
     
