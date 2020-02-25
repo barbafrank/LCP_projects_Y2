@@ -104,6 +104,43 @@ def cluster1(L_norm, centroids, alpha):
     # return the vector with the clusters
     return clusters
 
+def cluster2(L_norm, centroids):
+    # initialize queue with the centroids
+    # queue element: (weight, (centroid, path_length))
+    queue = [(-1., centroid) for centroid in centroids]
+    
+    # initialize the clusters vector
+    clusters = -np.ones(len(L), dtype=int)
+    clusters[centroids] = centroids
+    iters = 0
+    
+    # iterate until the queue is not empty
+    while len(queue)>0:
+        
+        # pop the first element
+        elem = hq.heappop(queue)
+        node = elem[1]
+        
+        # extract the neighbours
+        neighs = L[node]
+        
+        # for each neighbour
+        for neigh in neighs:
+            # if it wasn't already assigned
+            if clusters[neigh[0]] == -1:
+                # assign it to the parent's cluster
+                clusters[neigh[0]] = clusters[node]
+                # and push it into the global list
+                if neigh[1] > 0:
+                    hq.heappush(queue, ( elem[0]*neigh[1], neigh[0] ))
+                else:
+                    hq.heappush(queue, ( elem[0]/2, neigh[0] ))
+                
+        iters += 1
+    
+    # return the vector with the clusters
+    return clusters
+
 def cluster3(L):
     clusters = -np.ones(len(L), dtype=int)
     parents = np.zeros(len(L), dtype=int)
