@@ -205,6 +205,7 @@ def cluster4(L_T):
 
     measure = np.array(avgNeighsInDeg)
     order = np.argsort(measure)
+    #order = np.arange(len(L_T))
 
     # node id 0->N-1
     clusters = np.arange(len(L_T), dtype=int)
@@ -237,7 +238,9 @@ def cluster4(L_T):
                     if clust1==clust2==0:
                         split = 0
                     else:
-                        split = 2*clust1*clust2/(clust1**2+clust2**2)
+                        #split = 2*clust1*clust2/(clust1**2+clust2**2)
+                        size_ratio = (curr_cluster.shape[0]*neigh_cluster.shape[0])/(curr_cluster.shape[0]+neigh_cluster.shape[0])
+                        split = 2*size_ratio*clust1*clust2/(clust1**2+clust2**2)
                     #print("node:", n, "merge:", merge, "split", split)
                     if merge > split:
                         clusters[neigh_cluster] = c
