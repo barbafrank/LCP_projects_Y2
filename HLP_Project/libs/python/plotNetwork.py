@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 import matplotlib as mpl
 
 def plotNetworkClusters(A, clusters_vector, node_size=10, figsize=(15, 7),
-                                        draw_edges=True, pos=None, colors=None, ax=None, cbar=True, return_vals=False):
+                                        draw_edges=True, alpha=0.5, pos=None, colors=None, ax=None, cbar=True, return_vals=False):
 
     clusters = {k: v for k, v in enumerate(clusters_vector)}
     comms = set(clusters.values())
@@ -40,7 +40,7 @@ def plotNetworkClusters(A, clusters_vector, node_size=10, figsize=(15, 7),
         #nx.draw_networkx_nodes(G, pos, list_nodes, node_size, node_color = rgb2hex(colors[i][:3]))
 
     if(draw_edges):
-        nx.draw_networkx_edges(G, pos, alpha=0.5, ax=ax)
+        nx.draw_networkx_edges(G, pos, alpha=alpha, ax=ax)
 
     # set the colorbar
     if cbar:
