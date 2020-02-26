@@ -26,10 +26,9 @@ def generate_edges(positions, radius=1, weighted=False):
 
 def build_network(path, sep='\t', radius=1, weighted=False):
     df = pd.read_csv(path, sep=sep, names=["x", "y", "cluster"])
-    clusters = np.array(df.cluster)
     positions = np.array(df[["x", "y"]])
     A = generate_edges(positions, radius, weighted)
-    return A, positions, clusters
+    return A, positions
 
 def cluster1(L_norm, centroids, alpha):
     # initialize the output vector with the clusters
